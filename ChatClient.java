@@ -4,6 +4,8 @@ import org.omg.CosNaming.NamingContextPackage.*;
 import org.omg.CORBA.*;     // All CORBA applications need these classes.
 import org.omg.PortableServer.*;   
 import org.omg.PortableServer.POA;
+import java.util.Scanner;
+import java.util.*;
 
  
 class ChatCallbackImpl extends ChatCallbackPOA
@@ -18,11 +20,17 @@ class ChatCallbackImpl extends ChatCallbackPOA
     {
         System.out.println(notification);
     }
+
+    public void printGameArea(char gameArea[][], String xTeam, String oTeam) {
+        
+        //print game
+    }
 }
 
 public class ChatClient
 {
     static Chat chatImpl;
+    String myName;
     
     public static void main(String args[])
     {
@@ -54,9 +62,39 @@ public class ChatClient
 	    ChatCallback cref = ChatCallbackHelper.narrow(ref);
 	    
 	    // Application code goes below
-	    String chat = chatImpl.say(cref, "\n  Hello....");
+        String username = "";
+        boolean quit = false;
+	    String chat = chatImpl.say(cref, "\n  Hello to Othello! \nCommands: \njoin <your name> \nleave \nlist \npost \nquit");
 	    System.out.println(chat);
-	    
+
+        while(!quit) {
+            Scanner sc = new Scanner(System.in);
+            String command = sc.next();
+            
+            switch (command) {
+                case "join":
+                    String user = sc.next();
+                    if(chatImpl.join(cref, user))
+                        username = name;
+                    break;
+
+                case "leave":
+                    chatImpl.leave(cref);
+                    break;
+
+                case "list":
+                    chatImpl.list(cref);
+                    break;
+
+                case "post":
+                    chatImpl.say(cref, sc.nextLine());
+                    break;
+
+                default:
+                    throw new IllegalArgumentException("Invalid command!");
+            }
+        }
+     
 	} catch(Exception e){
 	    System.out.println("ERROR : " + e);
 	    e.printStackTrace(System.out);
