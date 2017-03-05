@@ -6,6 +6,67 @@ import org.omg.PortableServer.*;
 import org.omg.PortableServer.POA;
 import java.util.*;
 
+class OthelloGame {
+
+    private int boardSize;
+    private char area[][] = new char[boardSize][boardSize];
+    private Hashtable<String, Char> allPlayers = new Hashtable<String, Char>();
+    private Hashset<String> xPlayers = new Hashset<String>();
+    private Hashset<String> oPlayers = new Hashset<String>();
+
+    public OthelloGame(int boardSize){
+        this.boardSize = boardSize;
+    }
+
+    private void updateBoard() {
+        printGameArea(area, xPlayers.toArray(new String[xPlayers.size()]), oPlayers.toArray(new String[oPlayers.size()]));
+    }
+
+    public boolean addPlayer(String name, Char color){
+        //check if user already exists
+        if(allPlayers.get(name) == null && (color == 'o' || color == 'x')){
+            allPlayers.put(name, color);
+            if(color == 'o')
+                oPlayers.add(name);
+            if(color == 'x')
+                xPlayers.add(name);
+            return true;
+        }
+        return false;      
+    }
+
+    public boolean getPlayer(String name){
+        if(allPlayers.get(name) == null)
+            return false;
+        return true;
+    }
+    
+    public void removePlayer(String name){
+        allPlayers.remove(name);
+        if(allPlayers.get(name) == 'o')
+            oPlayers.remove(name);
+        if(allPlayers.get(name) == 'x')
+            xPlayers.remove(name);
+    }
+
+    public void insertMove(String name, int x, int y){
+        if(x > 0 && x <= boardSize && y > 0 && y <= boardSize) {
+            if(area[x-1][y-1] != 'x' && area[x-1][y-1] != 'o'){
+                area[x-1][y-1] = allPlayers.get(name);
+                updateBoard();
+            }
+            else {
+                System.out.println("\nIllegal move!");
+            }
+        }
+        else {
+            System.out.println("\nOut of border!");
+        }
+    }
+
+    //TO DO: decide when to end game
+}
+
 class User {
     
     private String name;
@@ -35,6 +96,7 @@ class ChatImpl extends ChatPOA
     private ORB orb;
     //vector of user objects 
     private Vector<User> users = new Vector<User>();
+    private OthelloGame game = new OthelloGame(8);
 
     public void setORB(ORB orb_val) {
         orb = orb_val;
@@ -109,6 +171,36 @@ class ChatImpl extends ChatPOA
             callobj.callback("\nNo active users!");
         }
     }
+
+    public void othello(ChatCallback callobj, char color) {
+        if(lookupUser(callobj) == -1) {
+            callobj.callback("\nJoin First!");
+        }
+        else {
+            if(game.addPlayer(users.get(lookupUser(callobj)).getName(), color) == false);
+                callobj.callback("\nYou already joined the game!");
+            else
+                callobj.callback("\nWelcome to the the game!");
+        }
+    }
+
+    public void insert(ChatCallback callobj, int x, int y) {
+        if(game.getPlayer(users.get(lookupUser(callobj)).getName()) == null)
+            callobj.callback("\nJoin the game first!");
+        else {
+            game.insertMove(users.get(lookupUser(callobj)).getName(), x, y);
+        }
+        
+        //TO DO: check if it is WINNING MOVE
+    }
+
+    /*public void othelloLeave(ChatCallback callobj) {
+        if(game.getPlayer(users.get(lookupUser(callobj)).getName()) == null)
+            callobj.callback("\nYou never joined the game!");
+        else {
+            game.removePlayer(users.get(lookupUser(callobj)).getName());
+        }
+    }*/
 }
 
 public class ChatServer 

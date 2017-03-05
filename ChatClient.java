@@ -21,15 +21,22 @@ class ChatCallbackImpl extends ChatCallbackPOA
     }
 
     public void printGameArea(char gameArea[][], String xTeam, String oTeam) {
-        
-        //print game
+
+        for(int i = 0; i < gameArea.length; i++){ //rows
+            for(int j = 0; j < gameArea[0].length; j++) //cols
+                if(gameArea[i][j] == 'o' || gameArea[i][j] == 'x')
+                    System.out.print(gameArea[i][j] + " ");
+                else
+                    System.out.print("_ ");
+             System.out.print("\n");
+        }
+        System.out.println("Team X: " + teamX + "\nTeam O: " + teamO + );
     }
 }
 
 public class ChatClient
 {
     static Chat chatImpl;
-    String myName;
     
     public static void main(String args[])
     {
@@ -64,10 +71,12 @@ public class ChatClient
         Scanner sc = new Scanner(System.in);
         String username = "";
         boolean ok = true;
-	    System.out.println("\nWelcome to Othello! \nCommands: \njoin <your name> \nleave \nlist \npost <your message>");
+        boolean game = true;
+	    System.out.println("\nWelcome to Othello Chat!! \nCommands: \njoin <your name> \nleave \nlist \npost <your message>\n");
         
         while(ok){
-    
+        
+            System.out.println("% ");
             String command = sc.next();
             switch (command) {
                 case "join":
@@ -87,6 +96,33 @@ public class ChatClient
 
                 case "post":
                     chatImpl.say(cref, sc.nextLine());
+                    break;
+
+                case "othello":
+                    chatImpl.othelloStart(cref, sc.next().charAt(0));
+                   /* System.out.println("\nWelcome to the GAME! \nCommands: \ninsert <x> <y> \nleaveGame");
+                    while(game){
+        
+                        System.out.println("%%% ");
+                        String command = sc.next();
+                        
+                        switch(command){
+                            case "leaveGame": 
+                                game = false;
+                                chatImpl.othelloLeave(cref);
+                                break;
+                            case "insert":
+                                chatImpl.othelloInsert(cref, sc.nextInt(), sc.nextInt());
+                                break;
+                            default:
+                                throw new IllegalArgumentException("Invalid command!");
+                        }
+
+                    }*/
+                    break; 
+
+                case "insert":
+                    chatImpl.insert(cref, sc.nextInt(), sc.nextInt());
                     break;
 
                 default:
