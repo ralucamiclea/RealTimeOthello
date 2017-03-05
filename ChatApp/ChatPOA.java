@@ -5,7 +5,7 @@ package ChatApp;
 * ChatApp/ChatPOA.java .
 * Error reading Messages File.
 * Error reading Messages File.
-* Friday, March 3, 2017 at 9:22:06 AM Central European Standard Time
+* Sunday, March 5, 2017 at 9:22:38 PM Central European Standard Time
 */
 
 public abstract class ChatPOA extends org.omg.PortableServer.Servant
@@ -17,7 +17,10 @@ public abstract class ChatPOA extends org.omg.PortableServer.Servant
   private static java.util.Hashtable _methods = new java.util.Hashtable ();
   static
   {
-    _methods.put ("say", new java.lang.Integer (0));
+    _methods.put ("join", new java.lang.Integer (0));
+    _methods.put ("leave", new java.lang.Integer (1));
+    _methods.put ("say", new java.lang.Integer (2));
+    _methods.put ("list", new java.lang.Integer (3));
   }
 
   public org.omg.CORBA.portable.OutputStream _invoke (String $method,
@@ -31,14 +34,39 @@ public abstract class ChatPOA extends org.omg.PortableServer.Servant
 
     switch (__method.intValue ())
     {
-       case 0:  // ChatApp/Chat/say
+       case 0:  // ChatApp/Chat/join
+       {
+         ChatApp.ChatCallback objref = ChatApp.ChatCallbackHelper.read (in);
+         String name = in.read_string ();
+         boolean $result = false;
+         $result = this.join (objref, name);
+         out = $rh.createReply();
+         out.write_boolean ($result);
+         break;
+       }
+
+       case 1:  // ChatApp/Chat/leave
+       {
+         ChatApp.ChatCallback objref = ChatApp.ChatCallbackHelper.read (in);
+         this.leave (objref);
+         out = $rh.createReply();
+         break;
+       }
+
+       case 2:  // ChatApp/Chat/say
        {
          ChatApp.ChatCallback objref = ChatApp.ChatCallbackHelper.read (in);
          String message = in.read_string ();
-         String $result = null;
-         $result = this.say (objref, message);
+         this.say (objref, message);
          out = $rh.createReply();
-         out.write_string ($result);
+         break;
+       }
+
+       case 3:  // ChatApp/Chat/list
+       {
+         ChatApp.ChatCallback objref = ChatApp.ChatCallbackHelper.read (in);
+         this.list (objref);
+         out = $rh.createReply();
          break;
        }
 

@@ -8,7 +8,7 @@
 
 NAME = Chat
 
-NAMESERVERPORT = 1050
+NAMESERVERPORT = 1995
 
 JAVA  = /usr/bin/java
 JAVAC = /usr/bin/javac

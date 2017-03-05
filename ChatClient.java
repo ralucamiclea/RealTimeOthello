@@ -4,7 +4,6 @@ import org.omg.CosNaming.NamingContextPackage.*;
 import org.omg.CORBA.*;     // All CORBA applications need these classes.
 import org.omg.PortableServer.*;   
 import org.omg.PortableServer.POA;
-import java.util.Scanner;
 import java.util.*;
 
  
@@ -62,15 +61,14 @@ public class ChatClient
 	    ChatCallback cref = ChatCallbackHelper.narrow(ref);
 	    
 	    // Application code goes below
+        Scanner sc = new Scanner(System.in);
         String username = "";
-        boolean quit = false;
-	    String chat = chatImpl.say(cref, "\n  Hello to Othello! \nCommands: \njoin <your name> \nleave \nlist \npost \nquit");
-	    System.out.println(chat);
-
-        while(!quit) {
-            Scanner sc = new Scanner(System.in);
+        boolean ok = true;
+	    System.out.println("\nWelcome to Othello! \nCommands: \njoin <your name> \nleave \nlist \npost <your message>");
+        
+        while(ok){
+    
             String command = sc.next();
-            
             switch (command) {
                 case "join":
                     String user = sc.next();
@@ -79,6 +77,7 @@ public class ChatClient
                     break;
 
                 case "leave":
+                    ok = false;
                     chatImpl.leave(cref);
                     break;
 
@@ -94,7 +93,7 @@ public class ChatClient
                     throw new IllegalArgumentException("Invalid command!");
             }
         }
-     
+
 	} catch(Exception e){
 	    System.out.println("ERROR : " + e);
 	    e.printStackTrace(System.out);

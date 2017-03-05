@@ -4,19 +4,110 @@ import org.omg.CosNaming.NamingContextPackage.*; // ..for exceptions.
 import org.omg.CORBA.*;     // All CORBA applications need these classes. 
 import org.omg.PortableServer.*;   
 import org.omg.PortableServer.POA;
+import java.util.*;
+
+class User {
+    
+    private String name;
+    private ChatCallback obj;
+        
+    public User(String name, ChatCallback obj) {
+    
+        this.name = name;
+        this.obj = obj;
+    }
+
+    public String getName(){ 
+        return name; 
+    }
+    public ChatCallback getCallObj() {
+        return obj; 
+    }
+    public boolean checkName(String username){
+        if(username.equals(this.name))
+            return true;
+    return false;
+    }
+}
  
 class ChatImpl extends ChatPOA
 {
     private ORB orb;
+    //vector of user objects 
+    private Vector<User> users = new Vector<User>();
 
     public void setORB(ORB orb_val) {
         orb = orb_val;
     }
 
-    public String say(ChatCallback callobj, String msg)
+    private int lookupUser(ChatCallback callobj){
+        for(int i = 0; i < users.size(); i++)
+            if(users.get(i).getCallObj().equals(callobj))
+                return i;
+        return -1;
+    }
+
+    public void say(ChatCallback callobj, String msg)
     {
-        callobj.callback(msg);
-        return ("         ....Goodbye!\n");
+
+        if(lookupUser(callobj) == -1) {
+            callobj.callback("\nJoin first!");
+        }
+        else {
+        //post to sender
+        callobj.callback(users.get(lookupUser(callobj)).getName() + " said: " + msg);      
+        //post to other users
+        post(callobj, users.get(lookupUser(callobj)).getName() + " said: " + msg);  
+        }
+    }
+
+    public void post(ChatCallback callobj, String msg) {
+        int index = lookupUser(callobj);
+        for(int i = 0; i < users.size(); i++)
+            if(index != i) //if other user than sender
+                users.get(i).getCallObj().callback(msg);
+    } 
+
+    public boolean join(ChatCallback callobj, String name) {
+        if(lookupUser(callobj) != -1) {
+            callobj.callback("\nYou have already joined!");
+            return false;
+        }
+
+        for(int i = 0; i < users.size(); i++)
+            if(users.get(i).checkName(name)) {
+            callobj.callback("\nUsername already taken!");
+            return false;
+        }
+
+        users.add(new User(name, callobj));
+        callobj.callback("\nWelcome, " + name + "!");
+        post(callobj, "\n" + name + " joined!");
+        return true;
+        
+    }
+
+    public void leave(ChatCallback callobj) {
+        if(lookupUser(callobj) == -1) {
+            callobj.callback("\nYou never joined!");
+        }
+        else {
+            post(callobj, users.get(lookupUser(callobj)).getName() + " left!");
+            callobj.callback("\nWe are sorry to see you go...");
+            users.remove(lookupUser(callobj));
+        }
+    }
+
+    public void list(ChatCallback callobj) {
+        if(users.size() != 0) {
+            callobj.callback("\nActive users: ");
+            
+            for(int i = 0; i < users.size(); i++)
+                callobj.callback(users.get(i).getName() + "\n");
+        }
+        else {
+            callobj.callback("\nNo active users!");
+        }
     }
 }
 

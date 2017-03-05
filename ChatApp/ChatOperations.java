@@ -5,10 +5,13 @@ package ChatApp;
 * ChatApp/ChatOperations.java .
 * Error reading Messages File.
 * Error reading Messages File.
-* Friday, March 3, 2017 at 9:22:06 AM Central European Standard Time
+* Sunday, March 5, 2017 at 9:22:38 PM Central European Standard Time
 */
 
 public interface ChatOperations 
 {
-  String say (ChatApp.ChatCallback objref, String message);
+  boolean join (ChatApp.ChatCallback objref, String name);
+  void leave (ChatApp.ChatCallback objref);
+  void say (ChatApp.ChatCallback objref, String message);
+  void list (ChatApp.ChatCallback objref);
 } // interface ChatOperations

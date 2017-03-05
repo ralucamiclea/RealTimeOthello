@@ -9,8 +9,8 @@ module ChatApp {
         void leave(in ChatCallback objref);
         void say(in ChatCallback objref, in string message);
         void list(in ChatCallback objref);
-        void insert(in ChatCallback objref, in long x, in long y);
-        void othello(in ChatCallback objref, in char color);
-        void reset(in ChatCallback objref);
+        //void insert(in ChatCallback objref, in long x, in long y);
+        //void othello(in ChatCallback objref, in char color);
+        //void reset(in ChatCallback objref);
     };
 };
