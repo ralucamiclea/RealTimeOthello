@@ -2,11 +2,11 @@ import ChatApp.*;          // The package containing our stubs
 import org.omg.CosNaming.*; // HelloClient will use the naming service.
 import org.omg.CosNaming.NamingContextPackage.*;
 import org.omg.CORBA.*;     // All CORBA applications need these classes.
-import org.omg.PortableServer.*;   
+import org.omg.PortableServer.*;
 import org.omg.PortableServer.POA;
 import java.util.*;
 
- 
+
 class ChatCallbackImpl extends ChatCallbackPOA
 {
     private ORB orb;
@@ -20,7 +20,7 @@ class ChatCallbackImpl extends ChatCallbackPOA
         System.out.println(notification);
     }
 
-    public void printGameArea(char gameArea[][], String xTeam, String oTeam) {
+    public void printGameArea(char gameArea[][], String teamX, String teamO) {
 
         for(int i = 0; i < gameArea.length; i++){ //rows
             for(int j = 0; j < gameArea[0].length; j++) //cols
@@ -30,14 +30,14 @@ class ChatCallbackImpl extends ChatCallbackPOA
                     System.out.print("_ ");
              System.out.print("\n");
         }
-        System.out.println("Team X: " + teamX + "\nTeam O: " + teamO + );
+        System.out.println("Team X: " + teamX + "\nTeam O: " + teamO);
     }
 }
 
 public class ChatClient
 {
     static Chat chatImpl;
-    
+
     public static void main(String args[])
     {
 	try {
@@ -49,34 +49,34 @@ public class ChatClient
 	    chatCallbackImpl.setORB(orb);
 
 	    // get reference to RootPOA and activate the POAManager
-	    POA rootpoa = 
+	    POA rootpoa =
 		POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
             rootpoa.the_POAManager().activate();
-	    
-	    // get the root naming context 
-	    org.omg.CORBA.Object objRef = 
+
+	    // get the root naming context
+	    org.omg.CORBA.Object objRef =
 		orb.resolve_initial_references("NameService");
 	    NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);
-	    
+
 	    // resolve the object reference in naming
 	    String name = "Chat";
 	    chatImpl = ChatHelper.narrow(ncRef.resolve_str(name));
-	    
+
 	    // obtain callback reference for registration w/ server
-	    org.omg.CORBA.Object ref = 
+	    org.omg.CORBA.Object ref =
 		rootpoa.servant_to_reference(chatCallbackImpl);
 	    ChatCallback cref = ChatCallbackHelper.narrow(ref);
-	    
+
 	    // Application code goes below
         Scanner sc = new Scanner(System.in);
         String username = "";
         boolean ok = true;
-        boolean game = true;
-	    System.out.println("\nWelcome to Othello Chat!! \nCommands: \njoin <your name> \nleave \nlist \npost <your message>\n");
-        
+        boolean game = false;
+	    System.out.println("\nWelcome to Othello Chat!! \nCommands: \njoin <your name> \nleave \nlist \npost <your message>\nothello <color>");
+
         while(ok){
-        
-            System.out.println("% ");
+
+            System.out.print("% ");
             String command = sc.next();
             switch (command) {
                 case "join":
@@ -99,15 +99,14 @@ public class ChatClient
                     break;
 
                 case "othello":
-                    chatImpl.othelloStart(cref, sc.next().charAt(0));
-                   /* System.out.println("\nWelcome to the GAME! \nCommands: \ninsert <x> <y> \nleaveGame");
+                    game = chatImpl.othelloStart(cref, sc.next().charAt(0));
                     while(game){
-        
-                        System.out.println("%%% ");
-                        String command = sc.next();
-                        
-                        switch(command){
-                            case "leaveGame": 
+
+                        System.out.print("%%% ");
+                        String gamecommand = sc.next();
+
+                        switch(gamecommand){
+                            case "leaveGame":
                                 game = false;
                                 chatImpl.othelloLeave(cref);
                                 break;
@@ -115,18 +114,13 @@ public class ChatClient
                                 chatImpl.othelloInsert(cref, sc.nextInt(), sc.nextInt());
                                 break;
                             default:
-                                throw new IllegalArgumentException("Invalid command!");
+                                System.out.println("Invalid command!");
                         }
-
-                    }*/
-                    break; 
-
-                case "insert":
-                    chatImpl.insert(cref, sc.nextInt(), sc.nextInt());
+                    }
                     break;
 
                 default:
-                    throw new IllegalArgumentException("Invalid command!");
+                    System.out.println("Invalid command!");
             }
         }
 

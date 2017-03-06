@@ -1,8 +1,8 @@
-import ChatApp.*;          // The package containing our stubs. 
-import org.omg.CosNaming.*; // HelloServer will use the naming service. 
-import org.omg.CosNaming.NamingContextPackage.*; // ..for exceptions. 
-import org.omg.CORBA.*;     // All CORBA applications need these classes. 
-import org.omg.PortableServer.*;   
+import ChatApp.*;          // The package containing our stubs.
+import org.omg.CosNaming.*; // HelloServer will use the naming service.
+import org.omg.CosNaming.NamingContextPackage.*; // ..for exceptions.
+import org.omg.CORBA.*;     // All CORBA applications need these classes.
+import org.omg.PortableServer.*;
 import org.omg.PortableServer.POA;
 import java.util.*;
 
@@ -10,19 +10,29 @@ class OthelloGame {
 
     private int boardSize;
     private char area[][] = new char[boardSize][boardSize];
-    private Hashtable<String, Char> allPlayers = new Hashtable<String, Char>();
-    private Hashset<String> xPlayers = new Hashset<String>();
-    private Hashset<String> oPlayers = new Hashset<String>();
+    private Hashtable<String, Character> allPlayers = new Hashtable<String, Character>();
+    private HashSet<String> xPlayers = new HashSet<String>();
+    private HashSet<String> oPlayers = new HashSet<String>();
 
     public OthelloGame(int boardSize){
         this.boardSize = boardSize;
     }
 
-    private void updateBoard() {
-        printGameArea(area, xPlayers.toArray(new String[xPlayers.size()]), oPlayers.toArray(new String[oPlayers.size()]));
+    public String getXplayers() {
+      System.out.println("Xplayers" + xPlayers.toArray(new String[xPlayers.size()]).toString());
+      return xPlayers.toArray(new String[xPlayers.size()]).toString();
     }
 
-    public boolean addPlayer(String name, Char color){
+    public String getOplayers() {
+      System.out.println("Oplayers" + oPlayers.toArray(new String[oPlayers.size()]).toString());
+      return oPlayers.toArray(new String[oPlayers.size()]).toString();
+    }
+
+    public char[][] getBoard() {
+      return area;
+    }
+
+    public boolean addPlayer(String name, char color){
         //check if user already exists
         if(allPlayers.get(name) == null && (color == 'o' || color == 'x')){
             allPlayers.put(name, color);
@@ -32,7 +42,7 @@ class OthelloGame {
                 xPlayers.add(name);
             return true;
         }
-        return false;      
+        return false;
     }
 
     public boolean getPlayer(String name){
@@ -40,7 +50,7 @@ class OthelloGame {
             return false;
         return true;
     }
-    
+
     public void removePlayer(String name){
         allPlayers.remove(name);
         if(allPlayers.get(name) == 'o')
@@ -53,7 +63,6 @@ class OthelloGame {
         if(x > 0 && x <= boardSize && y > 0 && y <= boardSize) {
             if(area[x-1][y-1] != 'x' && area[x-1][y-1] != 'o'){
                 area[x-1][y-1] = allPlayers.get(name);
-                updateBoard();
             }
             else {
                 System.out.println("\nIllegal move!");
@@ -68,21 +77,21 @@ class OthelloGame {
 }
 
 class User {
-    
+
     private String name;
     private ChatCallback obj;
-        
+
     public User(String name, ChatCallback obj) {
-    
+
         this.name = name;
         this.obj = obj;
     }
 
-    public String getName(){ 
-        return name; 
+    public String getName(){
+        return name;
     }
     public ChatCallback getCallObj() {
-        return obj; 
+        return obj;
     }
     public boolean checkName(String username){
         if(username.equals(this.name))
@@ -90,11 +99,11 @@ class User {
     return false;
     }
 }
- 
+
 class ChatImpl extends ChatPOA
 {
     private ORB orb;
-    //vector of user objects 
+    //vector of user objects
     private Vector<User> users = new Vector<User>();
     private OthelloGame game = new OthelloGame(8);
 
@@ -117,9 +126,9 @@ class ChatImpl extends ChatPOA
         }
         else {
         //post to sender
-        callobj.callback(users.get(lookupUser(callobj)).getName() + " said: " + msg);      
+        callobj.callback(users.get(lookupUser(callobj)).getName() + " said: " + msg);
         //post to other users
-        post(callobj, users.get(lookupUser(callobj)).getName() + " said: " + msg);  
+        post(callobj, users.get(lookupUser(callobj)).getName() + " said: " + msg);
         }
     }
 
@@ -128,7 +137,7 @@ class ChatImpl extends ChatPOA
         for(int i = 0; i < users.size(); i++)
             if(index != i) //if other user than sender
                 users.get(i).getCallObj().callback(msg);
-    } 
+    }
 
     public boolean join(ChatCallback callobj, String name) {
         if(lookupUser(callobj) != -1) {
@@ -146,7 +155,7 @@ class ChatImpl extends ChatPOA
         callobj.callback("\nWelcome, " + name + "!");
         post(callobj, "\n" + name + " joined!");
         return true;
-        
+
     }
 
     public void leave(ChatCallback callobj) {
@@ -163,7 +172,7 @@ class ChatImpl extends ChatPOA
     public void list(ChatCallback callobj) {
         if(users.size() != 0) {
             callobj.callback("\nActive users: ");
-            
+
             for(int i = 0; i < users.size(); i++)
                 callobj.callback(users.get(i).getName() + "\n");
         }
@@ -172,61 +181,69 @@ class ChatImpl extends ChatPOA
         }
     }
 
-    public void othello(ChatCallback callobj, char color) {
+    public boolean othelloStart(ChatCallback callobj, char color) {
         if(lookupUser(callobj) == -1) {
             callobj.callback("\nJoin First!");
+            return false;
         }
         else {
-            if(game.addPlayer(users.get(lookupUser(callobj)).getName(), color) == false);
-                callobj.callback("\nYou already joined the game!");
-            else
-                callobj.callback("\nWelcome to the the game!");
+            if(game.addPlayer(users.get(lookupUser(callobj)).getName(), color) == false) {
+                  callobj.callback("\nYou already joined the game!");
+                  return false;
+            }
+            else {
+              callobj.callback("\nWelcome to the GAME! \nCommands: \ninsert <x> <y> \nleaveGame");
+              callobj.printGameArea(game.getBoard(), game.getXplayers(), game.getOplayers());
+              return true;
+            }
+
         }
     }
 
-    public void insert(ChatCallback callobj, int x, int y) {
-        if(game.getPlayer(users.get(lookupUser(callobj)).getName()) == null)
+    public void othelloInsert(ChatCallback callobj, int x, int y) {
+        if(game.getPlayer(users.get(lookupUser(callobj)).getName()) == false)
             callobj.callback("\nJoin the game first!");
         else {
             game.insertMove(users.get(lookupUser(callobj)).getName(), x, y);
+            callobj.printGameArea(game.getBoard(), game.getXplayers(), game.getOplayers());
         }
-        
+
         //TO DO: check if it is WINNING MOVE
     }
 
-    /*public void othelloLeave(ChatCallback callobj) {
-        if(game.getPlayer(users.get(lookupUser(callobj)).getName()) == null)
+    public void othelloLeave(ChatCallback callobj) {
+        if(game.getPlayer(users.get(lookupUser(callobj)).getName()) == false)
             callobj.callback("\nYou never joined the game!");
         else {
             game.removePlayer(users.get(lookupUser(callobj)).getName());
         }
-    }*/
+    }
 }
 
-public class ChatServer 
+public class ChatServer
 {
-    public static void main(String args[]) 
+    public static void main(String args[])
     {
-	try { 
+	try {
 	    // create and initialize the ORB
-	    ORB orb = ORB.init(args, null); 
+	    ORB orb = ORB.init(args, null);
 
 	    // create servant (impl) and register it with the ORB
 	    ChatImpl chatImpl = new ChatImpl();
-	    chatImpl.setORB(orb); 
+	    chatImpl.setORB(orb);
 
 	    // get reference to rootpoa & activate the POAManager
-	    POA rootpoa = 
-		POAHelper.narrow(orb.resolve_initial_references("RootPOA"));  
-	    rootpoa.the_POAManager().activate(); 
+	    POA rootpoa =
+		POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+	    rootpoa.the_POAManager().activate();
 
 	    // get the root naming context
-	    org.omg.CORBA.Object objRef = 
+	    org.omg.CORBA.Object objRef =
 		           orb.resolve_initial_references("NameService");
 	    NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);
 
 	    // obtain object reference from the servant (impl)
-	    org.omg.CORBA.Object ref = 
+	    org.omg.CORBA.Object ref =
 		rootpoa.servant_to_reference(chatImpl);
 	    Chat cref = ChatHelper.narrow(ref);
 
@@ -237,11 +254,11 @@ public class ChatServer
 
 	    // Application code goes below
 	    System.out.println("ChatServer ready and waiting ...");
-	    
+
 	    // wait for invocations from clients
 	    orb.run();
 	}
-	    
+
 	catch(Exception e) {
 	    System.err.println("ERROR : " + e);
 	    e.printStackTrace(System.out);

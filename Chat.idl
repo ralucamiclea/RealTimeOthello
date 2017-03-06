@@ -11,10 +11,9 @@ module ChatApp {
         void leave(in ChatCallback objref);
         void say(in ChatCallback objref, in string message);
         void list(in ChatCallback objref);
-        void othello(in ChatCallback objref, in char color);
-        void insert(in ChatCallback objref, in long x, in long y);
-        //void reset(in ChatCallback objref);
-        //void othelloStart(in ChatCallback objref, in char color);
-        //void othelloInsert(in ChatCallback objref, in long x, in long y);
-        //void othelloLeave(in ChatCallback objref);
+        boolean othelloStart(in ChatCallback objref, in char color);
+        void othelloInsert(in ChatCallback objref, in long x, in long y);
+        void othelloLeave(in ChatCallback objref);
+     };
+
 };
