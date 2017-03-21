@@ -19,13 +19,15 @@ class OthelloGame {
     }
 
     public String getXplayers() {
-      System.out.println("Xplayers" + xPlayers.toArray(new String[xPlayers.size()]).toString());
-      return xPlayers.toArray(new String[xPlayers.size()]).toString();
+      //System.out.println("Xplayers" + xPlayers.toArray(new String[xPlayers.size()]).toString());
+      //return xPlayers.toArray(new String[xPlayers.size()]).toString();
+      return "Xplayers";
     }
 
     public String getOplayers() {
-      System.out.println("Oplayers" + oPlayers.toArray(new String[oPlayers.size()]).toString());
-      return oPlayers.toArray(new String[oPlayers.size()]).toString();
+      //System.out.println("Oplayers" + oPlayers.toArray(new String[oPlayers.size()]).toString());
+      //return oPlayers.toArray(new String[oPlayers.size()]).toString();
+      return "Oplayers";
     }
 
     public char[][] getBoard() {

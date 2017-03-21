@@ -72,7 +72,7 @@ public class ChatClient
         String username = "";
         boolean ok = true;
         boolean game = false;
-	    System.out.println("\nWelcome to Othello Chat!! \nCommands: \njoin <your name> \nleave \nlist \npost <your message>\nothello <color>");
+	    System.out.println("\nWelcome to Othello Chat!! \nCommands: \njoin <your name> \nleave \nlist \npost <your message> \nquit \nothello <color>");
 
         while(ok){
 
@@ -86,6 +86,10 @@ public class ChatClient
                     break;
 
                 case "leave":
+                    chatImpl.leave(cref);
+                    break;
+
+                case "quit":
                     ok = false;
                     chatImpl.leave(cref);
                     break;
