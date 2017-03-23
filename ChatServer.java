@@ -8,7 +8,8 @@ import java.util.*;
 
 class OthelloGame {
 
-    private int boardSize = 8;
+    private int boardSize = 4;
+    int xMarkers = 0, oMarkers = 0, totalMarkers = 0;
     private char area[][] = new char[boardSize][boardSize];
     private Hashtable<String, Character> allPlayers = new Hashtable<String, Character>();
     private HashSet<String> xPlayers = new HashSet<String>();
@@ -16,28 +17,7 @@ class OthelloGame {
 
     public OthelloGame(int boardSize){
         this.boardSize = boardSize;
-        //init();
     }
-
-  /*  private void init(){
-      //initialise the board
-      for (int i = 0; i < this.boardSize; i++) {
-          area[i][0] = '_';
-          area[i][this.boardSize] = '_';
-      }
-      for (int h = 0; h < this.boardSize; h++) {
-          area[0][h] = '|';
-          area[this.boardSize][h] = '|';
-      }
-      //print the board
-      for (int x = 0; x < this.boardSize; x++) {
-          for (int y = 0; y < this.boardSize; y++) {
-              // just a print so it does not make new lines for every char
-              System.out.print(area[x][y]);
-          }
-          System.out.println();
-      }
-    } */
 
     public String getXplayers() {
       StringBuilder builder = new StringBuilder();
@@ -59,6 +39,15 @@ class OthelloGame {
 
     public char[][] getBoard() {
       return area;
+    }
+
+    public void reset() {
+      for (int row = 0; row < boardSize; row ++)
+            for (int col = 0; col < boardSize; col++)
+                area[row][col] = '_';
+      totalMarkers = 0;
+      xMarkers = 0;
+      oMarkers = 0;
     }
 
     public boolean addPlayer(String name, char color){
@@ -88,19 +77,37 @@ class OthelloGame {
         allPlayers.remove(name);
     }
 
-    public int insertMove(String name, int x, int y){
-        if(x > 0 && x <= boardSize && y > 0 && y <= boardSize) {
-          if(area[x-1][y-1] != 'x' && area[x-1][y-1] != 'o')
-              area[x-1][y-1] = allPlayers.get(name);
-          else
-            return 0; //place already marked
-        }
-        else
-            return 1; //out of board limits
-        return 2;
+    private int checkState(){
+      if(totalMarkers == boardSize * boardSize){ //if the board is full
+          if(xMarkers > oMarkers) return 3;
+          if(xMarkers < oMarkers) return 4;
+          if(xMarkers == oMarkers) return 5;
+      }
+      return 2;
     }
 
-    //TO DO: decide when to end game
+    public int insertMove(String name, int x, int y){
+        if(checkState() != 2){
+            return checkState();
+        }
+        else {
+          if(x > 0 && x <= boardSize && y > 0 && y <= boardSize) {
+            if(area[x-1][y-1] != 'x' && area[x-1][y-1] != 'o') {
+              area[x-1][y-1] = allPlayers.get(name);
+              totalMarkers++;
+              if(allPlayers.get(name) == 'x')
+                  xMarkers++;
+              else
+                  oMarkers++;
+              return checkState();
+            }
+            else
+              return 0; //place already marked
+          }
+          else
+              return 1; //out of board limits
+        }
+    }
 }
 
 class User {
@@ -132,7 +139,7 @@ class ChatImpl extends ChatPOA
     private ORB orb;
     //vector of user objects
     private Vector<User> users = new Vector<User>();
-    private OthelloGame game = new OthelloGame(8);
+    private OthelloGame game = new OthelloGame(4);
 
     public void setORB(ORB orb_val) {
         orb = orb_val;
@@ -245,10 +252,26 @@ class ChatImpl extends ChatPOA
                 callobj.callback("\nIllegal move! Place already marked!");
             if (ok == 1)
                 callobj.callback("\nIllegal move! Out of board bounds! Board is 8x8.");
-            updateGame();
+            if (ok > 1) {
+                post(callobj, users.get(lookupUser(callobj)).getName() + " marked a place!");
+                updateGame();
+                if (ok == 3) {
+                  callobj.callback("\nTeam X WINS the game! \nThe board has been reseted. \nContinue or leave the game.");
+                  post(callobj, "\nTeam X WINS the game! \nThe board has been reseted. \nContinue or leave the game.");
+                  game.reset();
+                }
+                if (ok == 4){
+                  callobj.callback("\nTeam O WINS the game! \nThe board has been reseted. \nContinue or leave the game.");
+                  post(callobj, "\nTeam O WINS the game! \nThe board has been reseted. \nContinue or leave the game.");
+                  game.reset();
+                }
+                if (ok == 5){
+                  callobj.callback("\nDRAWN game! \nThe board has been reseted. \nContinue or leave the game.");
+                  post(callobj, "\nDRAWN game! \nThe board has been reseted. \nContinue or leave the game.");
+                  game.reset();
+                }
+            }
         }
-
-        //TO DO: check if it is WINNING MOVE
     }
 
     public void othelloLeave(ChatCallback callobj) {

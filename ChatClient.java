@@ -25,9 +25,9 @@ class ChatCallbackImpl extends ChatCallbackPOA
         for(int i = 0; i < gameArea.length; i++){ //rows
             for(int j = 0; j < gameArea[0].length; j++) //cols
                 if(gameArea[i][j] == 'o' || gameArea[i][j] == 'x')
-                    System.out.print(gameArea[i][j]);
+                    System.out.print(" " + gameArea[i][j] + " ");
                 else
-                    System.out.print("_ ");
+                    System.out.print(" _ ");
              System.out.print("\n");
         }
         System.out.println("Team X: " + teamX + "\nTeam O: " + teamO);
@@ -72,7 +72,7 @@ public class ChatClient
         String username = "";
         boolean ok = true;
         boolean game = false;
-	    System.out.println("\nWelcome to Othello Chat!! \nCommands: \njoin <your name> \nleave \nlist \npost <your message> \nquit \nothello <color>");
+	      System.out.println("\nWelcome to Othello Chat!! \nCommands: \njoin <your name> \nleave \nlist \npost <your message> \nquit \nothello <color>");
 
         while(ok){
 

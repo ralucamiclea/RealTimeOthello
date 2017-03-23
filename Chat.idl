@@ -1,7 +1,7 @@
 module ChatApp {
 
     interface ChatCallback {
-        typedef char GameArea[8][8];
+        typedef char GameArea[4][4];
         void callback(in string message);
         void printGameArea(in GameArea gameArea, in string xTeam, in string oTeam);
     };
