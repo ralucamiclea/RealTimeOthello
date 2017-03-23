@@ -103,27 +103,47 @@ public class ChatClient
                     break;
 
                 case "othello":
-                    char a = sc.next().charAt(0);
-                    System.out.printf("your team: %c", a);
-                    game = chatImpl.othelloStart(cref, a);
+                    if(sc.hasNext()){
+                      char a = sc.next().charAt(0);
+                      if (a != 'o' && a != 'x'){
+                          System.out.println("Invalid command! Color can be 'o' or 'x'.");
+                      }
+                      else {
+                        System.out.printf("your team: %c", a);
+                        game = chatImpl.othelloStart(cref, a);
 
-                    while(game){
+                        while(game){
 
-                        System.out.print("%%% ");
-                        String gamecommand = sc.next();
+                            System.out.print("%%% ");
+                            String gamecommand = sc.next();
 
-                        switch(gamecommand){
-                            case "leaveGame":
-                                game = false;
-                                chatImpl.othelloLeave(cref);
-                                break;
-                            case "insert":
-                                chatImpl.othelloInsert(cref, sc.nextInt(), sc.nextInt());
-                                break;
-                            default:
-                                System.out.println("Invalid command!");
+                            switch(gamecommand){
+                                case "leaveGame":
+                                    game = false;
+                                    chatImpl.othelloLeave(cref);
+                                    break;
+                                case "insert":
+                                    if(sc.hasNextInt() == false){
+                                      System.out.println("Invalid command! Coordonates needed.");
+                                    }
+                                    else {
+                                      int x  = sc.nextInt();
+                                      if(sc.hasNextInt()){
+                                        int y  = sc.nextInt();
+                                            chatImpl.othelloInsert(cref, x, y);
+                                      }
+                                      else
+                                        System.out.println("Invalid command! Coordonates needed.");
+                                    }
+                                    break;
+                                default:
+                                    System.out.println("Invalid command!");
+                            }
                         }
+                      }
                     }
+                    else
+                      System.out.println("Invalid command!");
                     break;
 
                 default:

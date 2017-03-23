@@ -88,18 +88,16 @@ class OthelloGame {
         allPlayers.remove(name);
     }
 
-    public void insertMove(String name, int x, int y){
+    public int insertMove(String name, int x, int y){
         if(x > 0 && x <= boardSize && y > 0 && y <= boardSize) {
-            if(area[x-1][y-1] != 'x' && area[x-1][y-1] != 'o'){
-                area[x-1][y-1] = allPlayers.get(name);
-            }
-            else {
-                System.out.println("\nIllegal move!");
-            }
+          if(area[x-1][y-1] != 'x' && area[x-1][y-1] != 'o')
+              area[x-1][y-1] = allPlayers.get(name);
+          else
+            return 0; //place already marked
         }
-        else {
-            System.out.println("\nOut of border!");
-        }
+        else
+            return 1; //out of board limits
+        return 2;
     }
 
     //TO DO: decide when to end game
@@ -192,7 +190,7 @@ class ChatImpl extends ChatPOA
             callobj.callback("\nYou never joined!");
         }
         else {
-            post(callobj, users.get(lookupUser(callobj)).getName() + " left!");
+            post(callobj, users.get(lookupUser(callobj)).getName() + " left the chat!");
             callobj.callback("\nWe are sorry to see you go...");
             users.remove(lookupUser(callobj));
         }
@@ -242,7 +240,11 @@ class ChatImpl extends ChatPOA
         if(game.getPlayer(users.get(lookupUser(callobj)).getName()) == false)
             callobj.callback("\nJoin the game first!");
         else {
-            game.insertMove(users.get(lookupUser(callobj)).getName(), x, y);
+            int ok = game.insertMove(users.get(lookupUser(callobj)).getName(), x, y);
+            if (ok == 0)
+                callobj.callback("\nIllegal move! Place already marked!");
+            if (ok == 1)
+                callobj.callback("\nIllegal move! Out of board bounds! Board is 8x8.");
             updateGame();
         }
 
@@ -254,6 +256,8 @@ class ChatImpl extends ChatPOA
             callobj.callback("\nYou never joined the game!");
         else {
             game.removePlayer(users.get(lookupUser(callobj)).getName());
+            post(callobj, users.get(lookupUser(callobj)).getName() + " left the game!");
+            callobj.callback("\nWe are sorry to see you go...");
         }
     }
 }
