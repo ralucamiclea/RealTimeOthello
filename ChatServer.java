@@ -8,7 +8,7 @@ import java.util.*;
 
 class OthelloGame {
 
-    private int boardSize;
+    private int boardSize = 8;
     private char area[][] = new char[boardSize][boardSize];
     private Hashtable<String, Character> allPlayers = new Hashtable<String, Character>();
     private HashSet<String> xPlayers = new HashSet<String>();
@@ -16,18 +16,45 @@ class OthelloGame {
 
     public OthelloGame(int boardSize){
         this.boardSize = boardSize;
+        //init();
     }
 
+  /*  private void init(){
+      //initialise the board
+      for (int i = 0; i < this.boardSize; i++) {
+          area[i][0] = '_';
+          area[i][this.boardSize] = '_';
+      }
+      for (int h = 0; h < this.boardSize; h++) {
+          area[0][h] = '|';
+          area[this.boardSize][h] = '|';
+      }
+      //print the board
+      for (int x = 0; x < this.boardSize; x++) {
+          for (int y = 0; y < this.boardSize; y++) {
+              // just a print so it does not make new lines for every char
+              System.out.print(area[x][y]);
+          }
+          System.out.println();
+      }
+    } */
+
     public String getXplayers() {
-      //System.out.println("Xplayers" + xPlayers.toArray(new String[xPlayers.size()]).toString());
-      //return xPlayers.toArray(new String[xPlayers.size()]).toString();
-      return "Xplayers";
+      StringBuilder builder = new StringBuilder();
+      for (String str : xPlayers) {
+        builder.append(str).append(" ");
+      }
+      return builder.toString();
+      //return xPlayers.toArray(new String[xPlayers.size()]);
     }
 
     public String getOplayers() {
-      //System.out.println("Oplayers" + oPlayers.toArray(new String[oPlayers.size()]).toString());
-      //return oPlayers.toArray(new String[oPlayers.size()]).toString();
-      return "Oplayers";
+      StringBuilder builder = new StringBuilder();
+      for (String str : oPlayers) {
+        builder.append(str).append(" ");
+      }
+      return builder.toString();
+      //return oPlayers.toArray(new String[oPlayers.size()]);
     }
 
     public char[][] getBoard() {
@@ -54,11 +81,11 @@ class OthelloGame {
     }
 
     public void removePlayer(String name){
-        allPlayers.remove(name);
         if(allPlayers.get(name) == 'o')
             oPlayers.remove(name);
         if(allPlayers.get(name) == 'x')
             xPlayers.remove(name);
+        allPlayers.remove(name);
     }
 
     public void insertMove(String name, int x, int y){
@@ -183,6 +210,14 @@ class ChatImpl extends ChatPOA
         }
     }
 
+    private void updateGame(){
+        String xpl = game.getXplayers();
+        String opl = game.getOplayers();
+        for(int i = 0; i < users.size(); i++) // all regisered users
+          if(xpl.toLowerCase().contains(users.get(i).getName()) || opl.toLowerCase().contains(users.get(i).getName())) // if they are also part of the game, update
+              users.get(i).getCallObj().printGameArea(game.getBoard(), game.getXplayers(), game.getOplayers());
+    }
+
     public boolean othelloStart(ChatCallback callobj, char color) {
         if(lookupUser(callobj) == -1) {
             callobj.callback("\nJoin First!");
@@ -195,7 +230,8 @@ class ChatImpl extends ChatPOA
             }
             else {
               callobj.callback("\nWelcome to the GAME! \nCommands: \ninsert <x> <y> \nleaveGame");
-              callobj.printGameArea(game.getBoard(), game.getXplayers(), game.getOplayers());
+              //callobj.callback("Xplayers: " + game.getXplayers() + "\nOplayers: " + game.getOplayers());
+              updateGame();
               return true;
             }
 
@@ -207,7 +243,7 @@ class ChatImpl extends ChatPOA
             callobj.callback("\nJoin the game first!");
         else {
             game.insertMove(users.get(lookupUser(callobj)).getName(), x, y);
-            callobj.printGameArea(game.getBoard(), game.getXplayers(), game.getOplayers());
+            updateGame();
         }
 
         //TO DO: check if it is WINNING MOVE

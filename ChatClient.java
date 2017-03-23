@@ -25,7 +25,7 @@ class ChatCallbackImpl extends ChatCallbackPOA
         for(int i = 0; i < gameArea.length; i++){ //rows
             for(int j = 0; j < gameArea[0].length; j++) //cols
                 if(gameArea[i][j] == 'o' || gameArea[i][j] == 'x')
-                    System.out.print(gameArea[i][j] + " ");
+                    System.out.print(gameArea[i][j]);
                 else
                     System.out.print("_ ");
              System.out.print("\n");
@@ -103,7 +103,10 @@ public class ChatClient
                     break;
 
                 case "othello":
-                    game = chatImpl.othelloStart(cref, sc.next().charAt(0));
+                    char a = sc.next().charAt(0);
+                    System.out.printf("your team: %c", a);
+                    game = chatImpl.othelloStart(cref, a);
+
                     while(game){
 
                         System.out.print("%%% ");
